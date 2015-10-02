@@ -3,7 +3,7 @@ module Stripe
     module List
       def list(filters={}, opts={})
         opts = {
-          api_base: api_url
+          :api_base => api_url
         }.merge(Util.normalize_opts(opts))
         opts = @opts.merge(opts) if @opts
 
