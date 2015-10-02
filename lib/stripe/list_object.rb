@@ -1,7 +1,17 @@
 module Stripe
   class ListObject < StripeObject
     include Enumerable
+    include Stripe::APIOperations::List
     include Stripe::APIOperations::Request
+
+    attr_accessor :limit
+
+    # An empty list object. This is returned from +next+ when we know that
+    # there isn't a next page in order to replicate the behavior of the API
+    # when it attempts to return a page beyond the last.
+    def self.empty_list(opts={})
+      ListObject.construct_from({ :data => [] }, opts)
+    end
 
     def [](k)
       case k
@@ -12,8 +22,33 @@ module Stripe
       end
     end
 
+    # Iterates through each resource in the page represented by the current
+    # `ListObject`.
+    #
+    # Note that this method makes no effort to fetch a new page when it gets to
+    # the end of the current page's resources. See also +each_with_all_pages+.
     def each(&blk)
       self.data.each(&blk)
+    end
+
+    # Iterates through each resource in all pages, making additional fetches to
+    # the API as necessary.
+    #
+    # Note that this method will make as many API calls as necessary to fetch
+    # all resources. For more granular control, please see +each+ and
+    # +next_page+.
+    def each_with_all_pages(&blk)
+      page = self
+      Enumerator.new do |enumerator|
+        loop do
+          page.each do |resource|
+            enumerator << resource
+          end
+
+          page = page.next_page
+          break if page.empty?
+        end
+      end
     end
 
     # Returns true if the page object contains no elements.
@@ -32,9 +67,35 @@ module Stripe
       Util.convert_to_stripe_object(response, opts)
     end
 
-    def all(params={}, opts={})
-      response, opts = request(:get, url, params, opts)
-      Util.convert_to_stripe_object(response, opts)
+    # Fetches the next page in the resource list (if there is one).
+    #
+    # This method will try to respect the limit of the current page. If none
+    # was given, the default limit will be fetched again.
+    def next_page(params={}, opts={})
+      return self.class.empty_list(opts) if !has_more
+      last_id = data.last.id
+
+      params = {
+        :limit           => limit, # may be nil
+        :starting_after => last_id,
+      }.merge(params)
+
+      list(params, opts)
+    end
+
+    # Fetches the previous page in the resource list (if there is one).
+    #
+    # This method will try to respect the limit of the current page. If none
+    # was given, the default limit will be fetched again.
+    def previous_page(params={}, opts={})
+      first_id = data.first.id
+
+      params = {
+        :limit         => limit, # may be nil
+        :ending_before => first_id,
+      }.merge(params)
+
+      list(params, opts)
     end
   end
 end

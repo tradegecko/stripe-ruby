@@ -19,6 +19,9 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency('shoulda', '~> 3.4.0')
   s.add_development_dependency('test-unit')
   s.add_development_dependency('rake')
+  s.add_development_dependency('byebug')
+  s.add_development_dependency('pry')
+  s.add_development_dependency('pry-byebug')
 
   s.files = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- test/*`.split("\n")

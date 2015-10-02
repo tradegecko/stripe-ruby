@@ -335,7 +335,8 @@ module Stripe
 
       should "making a GET request with parameters should have a query string and no body" do
         params = { :limit => 1 }
-        @mock.expects(:get).once.with("#{Stripe.api_base}/v1/charges?limit=1", nil, nil).returns(make_response([make_charge]))
+        @mock.expects(:get).once.with("#{Stripe.api_base}/v1/charges?limit=1", nil, nil).
+          returns(make_response({ :data => [make_charge] }))
         Stripe::Charge.all(params)
       end
 
