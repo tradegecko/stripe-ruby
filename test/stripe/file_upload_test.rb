@@ -20,7 +20,7 @@ module Stripe
 
     should "files should be listable" do
       @mock.expects(:get).once.returns(make_response(make_file_array))
-      c = Stripe::FileUpload.all.data
+      c = Stripe::FileUpload.list.data
       assert c.kind_of? Array
       assert c[0].kind_of? Stripe::FileUpload
     end

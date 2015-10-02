@@ -4,6 +4,14 @@ module Stripe
     include Stripe::APIOperations::List
     include Stripe::APIOperations::Request
 
+    # This accessor allows a `ListObject` to inherit an API URL which may have
+    # been overridden in a special case like file uploads. This allows
+    # consistent API endpoints to be hit as a user pages through resources.
+    attr_accessor :api_url
+
+    # This accessor allows a `ListObject` to inherit a limit that was given to
+    # a predecessor. This allows consistent limits as a user pages through
+    # resources.
     attr_accessor :limit
 
     # An empty list object. This is returned from +next+ when we know that
@@ -76,7 +84,7 @@ module Stripe
       last_id = data.last.id
 
       params = {
-        :limit           => limit, # may be nil
+        :limit          => limit, # may be nil
         :starting_after => last_id,
       }.merge(params)
 

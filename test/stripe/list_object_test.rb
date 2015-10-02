@@ -57,6 +57,14 @@ module Stripe
       refute next_list.empty?
     end
 
+    should "fetch a next page through #next_page and respect API URL" do
+      list = TestListObject.construct_from({ :data => [{ :id => 1 }], :has_more => true })
+      list.api_url = "https://example.com"
+      @mock.expects(:get).once.with("https://example.com/things?starting_after=1", nil, nil).
+        returns(make_response({ :data => [{ :id => 2 }], :has_more => false }))
+      _ = list.next_page
+    end
+
     should "fetch a next page through #next_page and respect limit" do
       list = TestListObject.construct_from({ :data => [{ :id => 1 }], :has_more => true })
       list.limit = 3
@@ -82,6 +90,14 @@ module Stripe
         returns(make_response({ :data => [{ :id => 1 }] }))
       next_list = list.previous_page
       refute next_list.empty?
+    end
+
+    should "fetch a next page through #previous_page and respect API URL" do
+      list = TestListObject.construct_from({ :data => [{ :id => 2 }] })
+      list.api_url = "https://example.com"
+      @mock.expects(:get).once.with("https://example.com/things?ending_before=2", nil, nil).
+        returns(make_response({ :data => [{ :id => 1 }] }))
+      _ = list.previous_page
     end
 
     should "fetch a next page through #previous_page and respect limit" do

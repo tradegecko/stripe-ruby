@@ -2,11 +2,16 @@ module Stripe
   module APIOperations
     module List
       def list(filters={}, opts={})
-        opts = Util.normalize_opts(opts)
+        opts = {
+          api_base: api_url
+        }.merge(Util.normalize_opts(opts))
         opts = @opts.merge(opts) if @opts
 
         response, opts = request(:get, url, filters, opts)
         obj = ListObject.construct_from(response, opts)
+
+        # inherit the API URL of the origin object
+        obj.api_url = api_url
 
         # set a limit so that we can fetch the same number when accessing the
         # next and previous pages
