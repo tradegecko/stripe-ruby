@@ -34,7 +34,7 @@ module Stripe
     # `ListObject`.
     #
     # Note that this method makes no effort to fetch a new page when it gets to
-    # the end of the current page's resources. See also +each_with_all_pages+.
+    # the end of the current page's resources. See also +auto_paging_each+.
     def each(&blk)
       self.data.each(&blk)
     end
@@ -45,8 +45,8 @@ module Stripe
     # Note that this method will make as many API calls as necessary to fetch
     # all resources. For more granular control, please see +each+ and
     # +next_page+.
-    def each_with_all_pages(&blk)
-      return enum_for(:each_with_all_pages) unless block_given?
+    def auto_paging_each(&blk)
+      return enum_for(:auto_paging_each) unless block_given?
 
       page = self
       loop do

@@ -23,7 +23,7 @@ module Stripe
       assert_equal expected, list.each.to_a
     end
 
-    should "provide #each_with_all_pages" do
+    should "provide #auto_paging_each" do
       arr = [
         { :id => 1 },
         { :id => 2 },
@@ -35,10 +35,10 @@ module Stripe
       @mock.expects(:get).once.with("#{Stripe.api_base}/things?starting_after=1", nil, nil).
         returns(make_response({ :data => [{ :id => 2 }, { :id => 3}], :has_more => false }))
 
-      assert_equal expected, list.each_with_all_pages.to_a
+      assert_equal expected, list.auto_paging_each.to_a
     end
 
-    should "provide #each_with_all_pages that responds to a block" do
+    should "provide #auto_paging_each that responds to a block" do
       arr = [
         { :id => 1 },
         { :id => 2 },
@@ -51,7 +51,7 @@ module Stripe
         returns(make_response({ :data => [{ :id => 2 }, { :id => 3}], :has_more => false }))
 
       actual = []
-      list.each_with_all_pages do |obj|
+      list.auto_paging_each do |obj|
         actual << obj
       end
 
