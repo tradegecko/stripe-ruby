@@ -123,7 +123,7 @@ module Stripe
     should "fetch a next page through #previous_page and respect limit" do
       list = TestListObject.construct_from({ :data => [{ :id => 2 }] })
       list.limit = 3
-      @mock.expects(:get).once.with("#{Stripe.api_base}/things?limit=3&ending_before=2", nil, nil).
+      @mock.expects(:get).once.with("#{Stripe.api_base}/things?ending_before=2&limit=3", nil, nil).
         returns(make_response({ :data => [{ :id => 1 }] }))
       next_list = list.previous_page
       assert_equal 3, next_list.limit

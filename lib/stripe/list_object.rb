@@ -99,8 +99,8 @@ module Stripe
       first_id = data.first.id
 
       params = {
-        :limit         => limit, # may be nil
         :ending_before => first_id,
+        :limit         => limit, # may be nil
       }.merge(params)
 
       list(params, opts)
