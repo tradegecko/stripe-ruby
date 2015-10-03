@@ -46,16 +46,16 @@ module Stripe
     # all resources. For more granular control, please see +each+ and
     # +next_page+.
     def each_with_all_pages(&blk)
-      page = self
-      Enumerator.new do |enumerator|
-        loop do
-          page.each do |resource|
-            enumerator << resource
-          end
+      return enum_for(:each_with_all_pages) unless block_given?
 
-          page = page.next_page
-          break if page.empty?
+      page = self
+      loop do
+        page.each do |resource|
+          yield resource
         end
+
+        page = page.next_page
+        break if page.empty?
       end
     end
 

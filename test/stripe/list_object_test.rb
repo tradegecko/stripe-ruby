@@ -38,6 +38,26 @@ module Stripe
       assert_equal expected, list.each_with_all_pages.to_a
     end
 
+    should "provide #each_with_all_pages that responds to a block" do
+      arr = [
+        { :id => 1 },
+        { :id => 2 },
+        { :id => 3 },
+      ]
+      expected = Util.convert_to_stripe_object(arr, {})
+
+      list = TestListObject.construct_from({ :data => [{ :id => 1 }], :has_more => true })
+      @mock.expects(:get).once.with("#{Stripe.api_base}/things?starting_after=1", nil, nil).
+        returns(make_response({ :data => [{ :id => 2 }, { :id => 3}], :has_more => false }))
+
+      actual = []
+      list.each_with_all_pages do |obj|
+        actual << obj
+      end
+
+      assert_equal expected, actual
+    end
+
     should "provide #empty?" do
       list = Stripe::ListObject.construct_from({ :data => [] })
       assert list.empty?
